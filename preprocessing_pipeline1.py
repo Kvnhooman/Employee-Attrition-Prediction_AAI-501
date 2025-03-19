@@ -17,6 +17,11 @@ class DataPreprocessor:
         self.train_df = pd.read_csv(train_file)
         self.val_df = pd.read_csv(val_file)
         
+         # Drop EmployeeID column
+        if "Employee ID" in self.train_df.columns:
+            self.train_df.drop(columns=["Employee ID"], inplace=True)
+            self.val_df.drop(columns=["Employee ID"], inplace=True)
+        
         # Convert Attrition to binary values (Yes -> 1, No -> 0)
         self.train_df["Attrition"] = self.train_df["Attrition"].map({"Left": 1, "Stayed": 0})
         self.val_df["Attrition"] = self.val_df["Attrition"].map({"Left": 1, "Stayed": 0})
