@@ -1,0 +1,31 @@
+#Training the data using Random Forest
+import pandas as pd
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import accuracy_score, classification_report
+
+# Load preprocessed data
+train_df = pd.read_csv("data/processed/train_processed.csv")
+val_df = pd.read_csv("data/processed/validation_processed.csv")
+
+# Split into features and target variable
+X_train = train_df.drop("Attrition", axis=1)
+y_train = train_df["Attrition"]
+
+X_val = val_df.drop("Attrition", axis=1)
+y_val = val_df["Attrition"]
+
+# Initialize the Random Forest model
+rf_model = RandomForestClassifier(n_estimators=100, random_state=42)
+
+# Train the model on the training data
+rf_model.fit(X_train, y_train)
+
+# Predict on the validation set
+predictions = rf_model.predict(X_val)
+
+# Evaluate the model performance
+accuracy = accuracy_score(y_val, predictions)
+report = classification_report(y_val, predictions)
+
+print("Accuracy:", accuracy)
+print("Classification Report:\n", report)
