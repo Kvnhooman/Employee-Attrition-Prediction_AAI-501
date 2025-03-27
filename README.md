@@ -11,6 +11,8 @@ Run "python3 preprocessing_pipeline.py" in the terminal to preprocess training a
 
 ✔ Feature Engineering
 
+✔ Remove outliers
+
 ✔ Group dataset for segment training (K-means clustering)
 
 ✔ Categorical Encoding (One-Hot / Ordinal Encoding)
