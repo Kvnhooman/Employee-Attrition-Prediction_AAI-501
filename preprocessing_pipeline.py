@@ -180,113 +180,6 @@ class DataPreprocessor:
         print(f"Training data NaN: {self.X_train.isnull().sum()}")
         print(f"Validation data NaN: {self.X_val.isnull().sum()}")
 
-    def process_by_segment(self, group_column):
-        """
-        Splits the data by a group column and processes each segment separately.
-        Removes outliers and encodes features independently per segment.
-        Returns a dictionary with training and validation data per group.
-        """
-        print(f"Processing data by segments in '{group_column}'...")
-
-        groups = self.X_train[group_column].unique()
-        segment_data = {}
-
-        for group in groups:
-            print(f"  Segment: {group}")
-            
-            # Filter by group
-            mask_train = self.X_train[group_column] == group
-            mask_val = self.X_val[group_column] == group
-
-            X_train_grp = self.X_train[mask_train].copy()
-            y_train_grp = self.y_train[mask_train].copy()
-            X_val_grp = self.X_val[mask_val].copy()
-            y_val_grp = self.y_val[mask_val].copy()
-
-            # Outlier removal within segment
-            num_cols = X_train_grp.select_dtypes(include='number').columns
-            if not num_cols.empty:
-                z_scores = zscore(X_train_grp[num_cols])
-                mask = (np.abs(z_scores) < 3).all(axis=1)
-                X_train_grp = X_train_grp[mask]
-                y_train_grp = y_train_grp[mask]
-
-            # Drop the group column after segmentation (unless preserving it)
-            if group_column not in self.preserve_columns_for_grouping:
-                X_train_grp.drop(columns=[group_column], inplace=True)
-                X_val_grp.drop(columns=[group_column], inplace=True)
-
-            # Encode each group independently
-            X_train_encoded = self.auto_encode(X_train_grp, preserve_columns_for_grouping=[])
-            X_val_encoded = self.auto_encode(X_val_grp, preserve_columns_for_grouping=[])
-
-            # Save per-group data
-            segment_data[group] = {
-                "X_train": X_train_encoded.reset_index(drop=True),
-                "y_train": y_train_grp.reset_index(drop=True),
-                "X_val": X_val_encoded.reset_index(drop=True),
-                "y_val": y_val_grp.reset_index(drop=True)
-            }
-
-        print("Segmentation-based processing complete.")
-        return segment_data
-
-    def process_by_kmeans(self, n_clusters=4, features_for_clustering=None):
-        """
-        Segments the data using KMeans clustering and returns per-cluster datasets
-        for training individual models.
-        """
-        print(f"Clustering with KMeans (k={n_clusters})...")
-
-        # Use only numeric features if not specified
-        if features_for_clustering is None:
-            features_for_clustering = self.X_train.select_dtypes(include='number').columns.tolist()
-
-        scaler = StandardScaler()
-        X_train_scaled = scaler.fit_transform(self.X_train[features_for_clustering])
-        X_val_scaled = scaler.transform(self.X_val[features_for_clustering])
-
-        # Fit KMeans on training data
-        kmeans = KMeans(n_clusters=n_clusters, random_state=42)
-        cluster_labels_train = kmeans.fit_predict(X_train_scaled)
-        cluster_labels_val = kmeans.predict(X_val_scaled)
-
-        # Add cluster ID to data
-        self.X_train["Cluster"] = cluster_labels_train
-        self.X_val["Cluster"] = cluster_labels_val
-
-        # Create per-cluster splits
-        segment_data = {}
-
-        for cluster_id in range(n_clusters):
-            print(f"  Preparing cluster: {cluster_id}")
-
-            mask_train = self.X_train["Cluster"] == cluster_id
-            mask_val = self.X_val["Cluster"] == cluster_id
-
-            X_train_cluster = self.X_train[mask_train].copy()
-            y_train_cluster = self.y_train[mask_train].copy()
-            X_val_cluster = self.X_val[mask_val].copy()
-            y_val_cluster = self.y_val[mask_val].copy()
-
-            # Optional: Drop 'Cluster' if not needed as a feature
-            X_train_cluster.drop(columns=["Cluster"], inplace=True)
-            X_val_cluster.drop(columns=["Cluster"], inplace=True)
-
-            # Encode separately for each cluster (recommended)
-            X_train_encoded = self.auto_encode(X_train_cluster)
-            X_val_encoded = self.auto_encode(X_val_cluster)
-
-            segment_data[cluster_id] = {
-                "X_train": X_train_encoded.reset_index(drop=True),
-                "y_train": y_train_cluster.reset_index(drop=True),
-                "X_val": X_val_encoded.reset_index(drop=True),
-                "y_val": y_val_cluster.reset_index(drop=True),
-            }
-
-        print("KMeans-based segmentation complete.")
-        return segment_data
-
     def save_preprocessed_data(self, output_train, output_val):
         """Saves the processed training and validation datasets."""
         train_final = pd.concat([pd.DataFrame(self.X_train), self.y_train.reset_index(drop=True)], axis=1)
@@ -301,7 +194,7 @@ class DataPreprocessor:
         """Executes the full preprocessing pipeline."""
         self.load_data(train_file, val_file)
         self.handle_missing_values()
-        # self.feature_engineering()
+        self.feature_engineering()
         self.remove_outliers()
         self.encode_categorical_features()
         self.save_preprocessed_data(output_train, output_val)
@@ -312,8 +205,8 @@ preserve_columns_for_grouping=[""]
 if __name__ == "__main__":
     preprocessor = DataPreprocessor(preserve_columns_for_grouping)
     preprocessor.run_pipeline(
-        train_file="data/processed/train.csv",
+        train_file="data/raw/train.csv",
         val_file="data/processed/validation.csv",
-        output_train="data/processed/train_processed.csv",
-        output_val="data/processed/validation_processed.csv"
+        output_train="data/processed/train_engineered.csv",
+        output_val="data/processed/validation_engineered.csv"
     )
