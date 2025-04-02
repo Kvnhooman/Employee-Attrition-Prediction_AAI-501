@@ -2,8 +2,7 @@ import pandas as pd
 import numpy as np
 from scipy.stats import zscore
 from sklearn.impute import SimpleImputer
-from sklearn.preprocessing import OneHotEncoder, LabelEncoder, StandardScaler
-from sklearn.cluster import KMeans
+from sklearn.preprocessing import OneHotEncoder, LabelEncoder
 
 class DataPreprocessor:
     def __init__(self, preserve_columns_for_grouping = None):
@@ -31,7 +30,6 @@ class DataPreprocessor:
         self.train_df["Attrition"] = self.train_df["Attrition"].map({"Left": 1, "Stayed": 0})
         self.val_df["Attrition"] = self.val_df["Attrition"].map({"Left": 1, "Stayed": 0})
 
-        
         # Separate features & target
         self.X_train, self.y_train = self.train_df.drop(columns=["Attrition"]), self.train_df["Attrition"]
         self.X_val, self.y_val = self.val_df.drop(columns=["Attrition"]), self.val_df["Attrition"]
@@ -40,13 +38,13 @@ class DataPreprocessor:
         """Handles missing values in numerical and categorical columns."""
         print("Handling missing values...")
         
-        # Numerical imputation
+        # Numerical
         num_imputer = SimpleImputer(strategy="mean")
         num_cols = self.X_train.select_dtypes(include=np.number).columns
         self.X_train[num_cols] = num_imputer.fit_transform(self.X_train[num_cols])
         self.X_val[num_cols] = num_imputer.transform(self.X_val[num_cols])
         
-        # Categorical imputation
+        # Categorical
         cat_imputer = SimpleImputer(strategy="most_frequent")
         cat_cols = self.X_train.select_dtypes(include="object").columns
         self.X_train[cat_cols] = cat_imputer.fit_transform(self.X_train[cat_cols])
@@ -78,7 +76,6 @@ class DataPreprocessor:
             # Dependents ratio
             df['Dependents_Ratio'] = df['Number of Dependents'] / (df['Age'] + 1)
 
-            # NEW FEATURES
             # Has promotion flag
             df['Has_Promotion'] = (df['Number of Promotions'] > 0).astype(int)
 
@@ -99,7 +96,7 @@ class DataPreprocessor:
                                         bins=[-1, 5, 15, df['Distance from Home'].max()],
                                         labels=['Near', 'Medium', 'Far'])
 
-            # Income vs. Job Level average (optional depending on data availability)
+            # Income vs. Job Level average
             if 'Job Level' in df.columns:
                 df['Income_vs_JobLevel'] = df['Monthly Income'] / (df.groupby('Job Level')['Monthly Income'].transform('mean') + 1)
 
