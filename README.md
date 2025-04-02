@@ -15,13 +15,9 @@ This is gonna predict if your employee is gonna leave you!
 
 ✔ Remove outliers
 
-✔ Group dataset for segment training (K-means clustering)
-
 ✔ Categorical Encoding (One-Hot / Ordinal Encoding)
 
 🔹 Feature Selection Class
-
-✔ Feature scaling
 
 ✔ Contains methods to select features based on correlation, variance etc.
 
