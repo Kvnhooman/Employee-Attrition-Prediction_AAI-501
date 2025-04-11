@@ -77,19 +77,17 @@ This project employs a multi-faceted approach:
 
 3.Install dependencies:
 
-  pip install -r requirements.txt
-
 4. Run the scripts and notebooks:
-  python segment.py
-  jupyter notebook AttritionPrediction.ipynb
-  jupyter notebook Logistic\ Regression.ipynb
+   e.g.
+  python preprocessing_pipeline.py
+  jupyter notebook Logistic Regression.ipynb
 
 ## Results
 
-XGBoost and ensemble models showed strong performance, with ROC AUC scores above 0.8 on the validation set.
+XGBoost and ensemble models showed strong performance.
 Key features influencing attrition include (List of key features here after running the models).
 Segmented analysis revealed variations in feature importance across job levels, highlighting the need for tailored retention strategies.
-The gradient boosting and logistic regression models have been implemented, and the test data can be run through them to produce the final results. (add the test result performance here)
+The gradient boosting and logistic regression models have been implemented, and the test data can be run through them to produce the final results.
 
 ## Future Improvements
 
