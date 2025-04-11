@@ -31,7 +31,6 @@ The dataset comprises various employee attributes, including demographic, job-re
 -   `data/processed/train_processed.csv`: Training data after preprocessing.
 -   `data/processed/validation_engineered.csv`: Validation data after feature engineering.
 -   `data/processed/validation_processed.csv`: Validation data after preprocessing.
--   `test_engineered.csv`: Engineered test data.
 
 ## Methodology
 
@@ -55,7 +54,6 @@ This project employs a multi-faceted approach:
 -   `segment.py`: Python script for segmented XGBoost modeling and detailed analysis.
 -   `AttritionPrediction.ipynb`: Jupyter notebook for ensemble model implementation.
 -   `Logistic Regression.ipynb`: Jupyter notebook for Logistic Regression model implementation.
--   `test_engineered.csv`: Test dataset with engineered features.
 
 ## Dependencies
 
